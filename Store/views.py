@@ -4,7 +4,7 @@ from Store.models.unit_type import Unit_Type
 from django.db.models.query import EmptyQuerySet, QuerySet
 from Store.models.categories import Category
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, render, redirect, HttpResponseRedirect, render_to_response
+from django.shortcuts import get_object_or_404, render, redirect, HttpResponseRedirect
 from .models.userprofile import UserProfile
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm, UserChangeForm
