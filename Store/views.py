@@ -4,7 +4,7 @@ from Store.models.unit_type import Unit_Type
 from django.db.models.query import EmptyQuerySet, QuerySet
 from Store.models.categories import Category
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, render, redirect, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render, redirect, HttpResponseRedirect, render_to_response
 from .models.userprofile import UserProfile
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm, UserChangeForm
@@ -17,13 +17,17 @@ from django.views.generic import View, DetailView
 from .models.products import Product
 from .models.orders import Order
 from Store.middlewares.auth import auth_middleware
+#for email:
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
+from django.template.loader import render_to_string
+
 from .templatetags.cart import *
 from .templatetags.custom_filter import *
 from django.contrib import messages
 from .forms2 import *
 from django.urls import reverse_lazy
+
 # from django.utils.decorators import method_decorator
 #-----home------
 # class Index(View):
@@ -289,32 +293,42 @@ class Checkout(View):
                 
                 """)
            
-            #counter = counter+1
-        #p.quantity -cart.get(str(p.id))
-        #Sending email:------------------------>
-
-        # errorMessage = "" 
-        
-        # if counter != totalProduct:
-        #     errorMessage = "Sorry " + str(totalProduct - counter) + " of the products are not available in STOCk!"
-
-        # if counter != 0:
+    
         total = cart_total_price(products,cart)
         curr = currency(total)
         print("Total price:-->>",total)
         print(" curreency : -->>",curr)
-        subject = 'Order Confirmation:--> eKrishok.com'
-        message = f'''
-            Hello, {username}. You have ordered total : {curr} from eKrishok.com.Your order has taken succesfully , you will get your desire products within 3 days. 
+
+        #Email code is here:-------->>>>
+        context = {
+            'username': username,
+            'curr': curr,
+
+        }
+        template = render_to_string('store/email_template.html', context)
+        email = EmailMessage(
+            ' Order Confirmation: from eKrishok.com, Thanks for purchasing our   products!! ',
+            template,
+            settings.EMAIL_HOST_USER,
+            [email]
+
+
+        )
+        email.fail_silenty = False
+        email.send()
+
+        # subject = 'Order Confirmation:--> eKrishok.com'
+        # message = f'''
+        #     Hello, {username}. You have ordered total : {curr} from eKrishok.com.Your order has taken succesfully , you will get your desire products within 3 days. 
                     
                     
-                    '''
-        email_from = settings.EMAIL_HOST_USER
+        #             '''
+        # email_from = settings.EMAIL_HOST_USER
 
-        recipient_list = [email]
+        # recipient_list = [email]
 
-                #----Sending email-------
-        send_mail(subject, message, email_from, recipient_list)
+        #         #----Sending email-------
+        # send_mail(subject, message, email_from, recipient_list)
                     # print("All data @--->",address,phone,email,user)
                     # print('products: ', products, 'cart is: ', cart)
         
